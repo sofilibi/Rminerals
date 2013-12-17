@@ -1,0 +1,105 @@
+library(XLConnect)
+
+a<-file.choose()
+wb<-loadWorkbook(a)
+#workbook = choose.files(sn, "Choose a fieldbook where you already set parameters!", filters=tpl)
+#wb = loadWorkbook(workbook)
+
+## lectura de datos
+datos <- readWorksheet(wb, sheet = "Fieldbook", startRow=1, endRow=-1, startCol=1, endCol=-1, header=T)
+ndatos <- readWorksheet(wb, sheet = "Fieldbook", startRow=1, endRow=1, startCol=1, endCol=-1, header=F)
+
+## identificacion de nombres de genotipos
+iden <- readWorksheet(wb, sheet = "Installation", startRow=4, endRow=4, startCol=2, endCol=2, header=F)[[1]]
+lfg <- readWorksheet(wb, sheet = "Material List", startRow=1, endRow=1, startCol=3, endCol=5, header=F)
+if (iden == lfg[[1]]) cvn <- 3
+if (iden == lfg[[2]]) cvn <- 4
+if (iden == lfg[[3]]) cvn <- 5
+datos[,cvn] <- as.factor(datos[,cvn])
+
+## calculos: media, desviacion estandar, n
+calcula <- function(vvv, nnn){
+  subdatos <- subset(datos, vvv!="NA")
+  resumen <- as.data.frame(table(subdatos[,cvn]))
+  resumen <- cbind(resumen, tapply(vvv, datos[,cvn], mean, na.rm=T))
+  resumen <- cbind(resumen, tapply(vvv, datos[,cvn], sd, na.rm=T))
+  colnames(resumen)[2:4] <- c(paste(nnn,"n",sep="_"), paste(nnn,"Mean",sep="_"), paste(nnn,"SD",sep="_"))
+  list(resumen)
+} 
+
+resu <- as.data.frame(levels(datos[,cvn]))
+colnames(resu) <- iden
+
+
+if (sum(ndatos=="PCOL")==1){
+  resu <- cbind(calcula(datos$PCOL, "PCOL")[[1]][,2:4], resu)
+}
+
+
+
+if (sum(ndatos=="PNCOL")==1){
+  resu <- cbind(calcula(datos$PNCOL, "PNCOL")[[1]][,2:4], resu)
+}
+
+
+
+if (sum(ndatos=="P2N")==1){
+  resu <- cbind(calcula(datos$P2N, "P2N")[[1]][,2:4], resu)
+}
+
+
+
+if (sum(ndatos=="PTOTAL")==1){
+  resu <- cbind(calcula(datos$PTOTAL, "PTOTAL")[[1]][,2:4], resu)
+}
+
+
+
+if (sum(ndatos=="PSP")==1){
+  resu <- cbind(calcula(datos$PSP, "PSP")[[1]][,2:4], resu)
+}
+
+
+
+if (sum(ndatos=="PNSP")==1){
+  resu <- cbind(calcula(datos$PNSP, "PNSP")[[1]][,2:4], resu)
+}
+
+
+
+
+if (sum(ndatos=="P2NP")==1){
+  resu <- cbind(calcula(datos$P2NP, "P2NP")[[1]][,2:4], resu)
+}
+
+
+
+if (sum(ndatos=="Pdb")==1){
+  resu <- cbind(calcula(datos$Pdb, "Pdb")[[1]][,2:4], resu)
+}
+
+
+
+if (sum(ndatos=="PPpd")==1){
+  resu <- cbind(calcula(datos$PPpd, "PPpd")[[1]][,2:4], resu)
+}
+
+
+  						
+
+for (i in 1:I(dim(resu)[2]-1)) resu[,i] <- as.numeric(resu[,i])
+
+## Grabar calculos en nueva hoja datae
+if(existsSheet(wb,"Summary by clone")) {
+  removeSheet(wb,"Summary by clone")
+}
+
+createSheet(wb, "Summary by clone")
+setActiveSheet(wb, sheet = "Summary by clone")
+
+setActiveSheet(wb, sheet = "Summary by clone")
+writeWorksheet(wb, resu[dim(resu)[2]], "Summary by clone", startRow=1, startCol=1, header=T)
+writeWorksheet(wb, resu[1:dim(resu)[2]-1], "Summary by clone", startRow=1, startCol=2, header=T)
+
+saveWorkbook(wb) 
+
