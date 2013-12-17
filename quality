@@ -1,0 +1,397 @@
+library(XLConnect)
+
+a<-file.choose()
+wb<-loadWorkbook(a)
+#workbook = choose.files(sn, "Choose a fieldbook where you already set parameters!", filters=tpl)
+#wb = loadWorkbook(workbook)
+
+## lectura de datos
+datos <- readWorksheet(wb, sheet = "Fieldbook", startRow=1, endRow=-1, startCol=1, endCol=-1, header=T)
+ndatos <- readWorksheet(wb, sheet = "Fieldbook", startRow=1, endRow=1, startCol=1, endCol=-1, header=F)
+
+## identificacion de nombres de genotipos
+iden <- readWorksheet(wb, sheet = "Installation", startRow=4, endRow=4, startCol=2, endCol=2, header=F)[[1]]
+lfg <- readWorksheet(wb, sheet = "Material List", startRow=1, endRow=1, startCol=3, endCol=5, header=F)
+if (iden == lfg[[1]]) cvn <- 3
+if (iden == lfg[[2]]) cvn <- 4
+if (iden == lfg[[3]]) cvn <- 5
+datos[,cvn] <- as.factor(datos[,cvn])
+
+## calculos: media, desviacion estandar, n
+calcula <- function(vvv, nnn){
+  subdatos <- subset(datos, vvv!="NA")
+  resumen <- as.data.frame(table(subdatos[,cvn]))
+  resumen <- cbind(resumen, tapply(vvv, datos[,cvn], mean, na.rm=T))
+  resumen <- cbind(resumen, tapply(vvv, datos[,cvn], sd, na.rm=T))
+  colnames(resumen)[2:4] <- c(paste(nnn,"n",sep="_"), paste(nnn,"Mean",sep="_"), paste(nnn,"SD",sep="_"))
+  list(resumen)
+} 
+
+resu <- as.data.frame(levels(datos[,cvn]))
+colnames(resu) <- iden
+
+
+if (sum(ndatos=="MoFW")==1){
+  resu <- cbind(calcula(datos$MoFW, "MoFW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="MoDW")==1){
+  resu <- cbind(calcula(datos$MoDW, "MoDW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="CdFW")==1){
+  resu <- cbind(calcula(datos$CdFW, "CdFW")[[1]][,2:4], resu)
+}
+
+
+if (sum(ndatos=="CdDW")==1){
+  resu <- cbind(calcula(datos$CdDW, "CdDW")[[1]][,2:4], resu)
+}
+
+
+if (sum(ndatos=="AlFW")==1){
+  resu <- cbind(calcula(datos$AlFW, "AlFW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="AlDW")==1){
+  resu <- cbind(calcula(datos$AlDW, "AlDW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="NaFW")==1){
+  resu <- cbind(calcula(datos$NaFW, "NaFW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="NaDW")==1){
+  resu <- cbind(calcula(datos$NaDW, "NaDW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="SFW")==1){
+  resu <- cbind(calcula(datos$SFW, "SFW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="SDW")==1){
+  resu <- cbind(calcula(datos$SDW, "SDW")[[1]][,2:4], resu)
+} 
+
+
+if (sum(ndatos=="PDW")==1){
+  resu <- cbind(calcula(datos$PDW, "PDW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="PFW")==1){
+  resu <- cbind(calcula(datos$PFW, "PFW")[[1]][,2:4], resu)
+}  
+
+#if (sum(ndatos=="SDW")==1){
+#  resu <- cbind(calcula(datos$SDW, "SDW")[[1]][,2:4], resu)
+#} 
+
+# 
+# if (sum(ndatos=="PFW")==1){
+#   resu <- cbind(calcula(datos$PFW, "PFW")[[1]][,2:4], resu)
+# }  
+
+ 
+
+
+#if (sum(ndatos=="SDW")==1){
+#  resu <- cbind(calcula(datos$SDW, "SDW")[[1]][,2:4], resu)
+#} 
+
+# if (sum(ndatos=="PFW")==1){
+#   resu <- cbind(calcula(datos$PFW, "PFW")[[1]][,2:4], resu)
+# }  
+
+
+# if (sum(ndatos=="PDW")==1){
+#   resu <- cbind(calcula(datos$PDW, "PDW")[[1]][,2:4], resu)
+# } 
+
+if (sum(ndatos=="KFW")==1){
+  resu <- cbind(calcula(datos$KFW, "KFW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="KDW")==1){
+  resu <- cbind(calcula(datos$KDW, "KDW")[[1]][,2:4], resu)
+}  
+
+if (sum(ndatos=="MgFW")==1){
+  resu <- cbind(calcula(datos$MgFW, "MgFW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="MgDW")==1){
+  resu <- cbind(calcula(datos$MgDW, "MgDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="CaFW")==1){
+  resu <- cbind(calcula(datos$CaFW, "CaFW")[[1]][,2:4], resu)
+}  
+
+if (sum(ndatos=="CaDW")==1){
+  resu <- cbind(calcula(datos$CaDW, "CaDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="ZnFW")==1){
+  resu <- cbind(calcula(datos$ZnFW, "ZnFW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="ZnDW")==1){
+  resu <- cbind(calcula(datos$ZnDW, "ZnDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="CuFW")==1){
+  resu <- cbind(calcula(datos$CuFW, "CuFW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="CuDW")==1){
+  resu <- cbind(calcula(datos$CuDW, "CuDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="MnFW")==1){
+  resu <- cbind(calcula(datos$MnFW, "MnFW")[[1]][,2:4], resu)
+}
+if (sum(ndatos=="MnDW")==1){
+  resu <- cbind(calcula(datos$MnDW, "MnDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="FeFW")==1){
+  resu <- cbind(calcula(datos$FeFW, "FeFW")[[1]][,2:4], resu)
+}  
+
+if (sum(ndatos=="FeDW")==1){
+  resu <- cbind(calcula(datos$FeDW, "FeDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="NiFW")==1){
+  resu <- cbind(calcula(datos$NiFW, "NiFW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="NiDW")==1){
+  resu <- cbind(calcula(datos$NiDW, "NiDW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="TiFW")==1){
+  resu <- cbind(calcula(datos$TiFW, "TiFW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="TiDW")==1){
+  resu <- cbind(calcula(datos$TiDW, "TiDW")[[1]][,2:4], resu)
+}
+
+#EXTRAS en un libro de minerales
+
+if (sum(ndatos=="Energia_FW")==1){
+  resu <- cbind(calcula(datos$Energia_FW, "Energia_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Energia_DW")==1){
+  resu <- cbind(calcula(datos$Energia_DW, "Energia_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Protein_FW")==1){
+  resu <- cbind(calcula(datos$Protein_FW, "Protein_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Protein_DW")==1){
+  resu <- cbind(calcula(datos$Protein_DW, "Protein_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Fat_FW")==1){
+  resu <- cbind(calcula(datos$Fat_FW, "Fat_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Fat_DW")==1){
+  resu <- cbind(calcula(datos$Fat_DW, "Fat_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Fiber_FW")==1){
+  resu <- cbind(calcula(datos$Fiber_FW, "Fiber_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Fiber_DW")==1){
+  resu <- cbind(calcula(datos$Fiber_DW, "Fiber_DW")[[1]][,2:4], resu)
+}
+
+
+if (sum(ndatos=="Fat2_FW")==1){
+  resu <- cbind(calcula(datos$Fat2_FW, "Fat2_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Fat2_DW")==1){
+  resu <- cbind(calcula(datos$Fat2_DW, "Fat2_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Fiber2_FW")==1){
+  resu <- cbind(calcula(datos$Fiber2_FW, "Fiber2_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Fiber2_DW")==1){
+  resu <- cbind(calcula(datos$Fiber2_DW, "Fiber2_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="calx_FW")==1){
+  resu <- cbind(calcula(datos$calx_FW, "calx_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="calx_DW")==1){
+  resu <- cbind(calcula(datos$calx_DW, "calx_DW")[[1]][,2:4], resu)
+}
+
+
+
+#VitaminC
+
+if (sum(ndatos=="DM")==1){
+  resu <- cbind(calcula(datos$DM, "DM")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="ASC_DW")==1){
+  resu <- cbind(calcula(datos$ASC_DW, "ASC_DW")[[1]][,2:4], resu)
+}  
+
+if (sum(ndatos=="ASC_FW")==1){
+  resu <- cbind(calcula(datos$ASC_FW, "ASC_FW")[[1]][,2:4], resu)
+} 
+
+#CAROTENOIDS
+
+if (sum(ndatos=="neoDW")==1){
+  resu <- cbind(calcula(datos$neoDW, "neoDW")[[1]][,2:4], resu)
+}
+if (sum(ndatos=="neoFW")==1){
+  resu <- cbind(calcula(datos$neoFW, "neoFW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="betacaroDW")==1){
+  resu <- cbind(calcula(datos$betacaroDW, "betacaroDW")[[1]][,2:4], resu)
+}  
+
+if (sum(ndatos=="betacaroFW")==1){
+  resu <- cbind(calcula(datos$betacaroFW, "betacaroFW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="zeaDW")==1){
+  resu <- cbind(calcula(datos$zeaDW, "zeaDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="zeaFW")==1){
+  resu <- cbind(calcula(datos$zeaFW, "zeaFW")[[1]][,2:4], resu)
+}  
+
+if (sum(ndatos=="luteDW")==1){
+  resu <- cbind(calcula(datos$luteDW, "luteDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="luteFW")==1){
+  resu <- cbind(calcula(datos$luteFW, "luteFW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="antDW")==1){
+  resu <- cbind(calcula(datos$antDW, "antDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="antFW")==1){
+  resu <- cbind(calcula(datos$antFW, "antFW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="vioDW")==1){
+  resu <- cbind(calcula(datos$vioDW, "vioDW")[[1]][,2:4], resu)
+} 
+
+if (sum(ndatos=="vioFW")==1){
+  resu <- cbind(calcula(datos$vioFW, "vioFW")[[1]][,2:4], resu)
+} 
+
+
+if (sum(ndatos=="caroDW")==1){
+  resu <- cbind(calcula(datos$caroDW, "caroDW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="caroFW")==1){
+  resu <- cbind(calcula(datos$caroFW, "caroFW")[[1]][,2:4], resu)
+}
+
+#Phenols
+
+if (sum(ndatos=="TP_DW")==1){
+  resu <- cbind(calcula(datos$TP_DW, "TP_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="TP_FW")==1){
+  resu <- cbind(calcula(datos$TP_FW, "TP_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="TA_DW")==1){
+  resu <- cbind(calcula(datos$TA_DW, "TA_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="TA_FW")==1){
+  resu <- cbind(calcula(datos$TA_FW, "TA_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="CH_DW")==1){
+  resu <- cbind(calcula(datos$CH_DW, "CH_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="CH_FW")==1){
+  resu <- cbind(calcula(datos$CH_FW, "CH_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="CafAc_DW")==1){
+  resu <- cbind(calcula(datos$CafAc_DW, "CafAc_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="CafAc_FW")==1){
+  resu <- cbind(calcula(datos$CafAc_FW, "CafAc_FW")[[1]][,2:4], resu)
+}
+
+
+
+
+
+
+#ExtraPhenols
+
+if (sum(ndatos=="Trip_DW")==1){
+  resu <- cbind(calcula(datos$Trip_DW, "Trip_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="Trip_FW")==1){
+  resu <- cbind(calcula(datos$Trip_FW, "Trip_FW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="AntCap_DW")==1){
+  resu <- cbind(calcula(datos$AntCap_DW, "AntCap_DW")[[1]][,2:4], resu)
+}
+
+if (sum(ndatos=="AntCap_FW")==1){
+  resu <- cbind(calcula(datos$AntCap_FW, "AntCap_FW")[[1]][,2:4], resu)
+}
+
+
+if (sum(ndatos=="Hvalue")==1){
+  resu <- cbind(calcula(datos$Hvalue, "Hvalue")[[1]][,2:4], resu)
+}
+
+
+
+
+
+
+
+for (i in 1:I(dim(resu)[2]-1)) resu[,i] <- as.numeric(resu[,i])
+
+## Grabar calculos en nueva hoja datae
+if(existsSheet(wb,"Summary by clone")) {
+  removeSheet(wb,"Summary by clone")
+}
+
+createSheet(wb, "Summary by clone")
+setActiveSheet(wb, sheet = "Summary by clone")
+
+setActiveSheet(wb, sheet = "Summary by clone")
+writeWorksheet(wb, resu[dim(resu)[2]], "Summary by clone", startRow=1, startCol=1, header=T)
+writeWorksheet(wb, resu[1:dim(resu)[2]-1], "Summary by clone", startRow=1, startCol=2, header=T)
+
+saveWorkbook(wb) 
+
